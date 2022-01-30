@@ -38,7 +38,12 @@
 #include <string.h>
 #include <unistd.h>
 
+#if defined(USE_LIBSAIS)
+#include "libsais.h"
+typedef int32_t saidx_t;
+#else
 #include <divsufsort.h>
+#endif
 
 #ifndef MIN
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
@@ -186,7 +191,11 @@ int ddelta_generate(int oldfd, int newfd, int patchfd)
         goto out;
     }
 
+#if USE_LIBSAIS
+    if (libsais(old, I, (int32_t) oldsize, 0, NULL)) {
+#else
     if (divsufsort(old, I, (int32_t) oldsize)) {
+#endif
         result = -DDELTA_EALGO;
         goto out;
     }
